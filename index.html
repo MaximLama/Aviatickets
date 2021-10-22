@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title></title>
+	<meta charset="utf-8">	
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div class="wrap">
+		<!-- Лого сайта -->
+		<div class="logo-wrap">
+			<div class="logo-container">
+				<object type="image/svg+xml" data="img/logo.svg" class="logo"></object>
+			</div>
+		</div>
+		<!-- Блок с возможностью выбора количества пересадок -->
+		<div class="col-1-3">
+			<aside>
+				<p id="transfer-count">Количество пересадок</p>
+				<div class="transfers">
+					<input type="checkbox" id="all"><label for="all">Все</label>
+				</div>
+				<div class="transfers">
+					<input type="checkbox" id="nonstop"><label for="nonstop">Без пересадок</label>
+				</div>
+				<div class="transfers">	
+					<input type="checkbox" id="transfer-1"><label for="transfer-1">1 пересадка</label>
+				</div>
+				<div class="transfers">
+					<input type="checkbox" id="transfer-2"><label for="transfer-2">2 пересадки</label>
+				</div>
+				<div class="transfers">
+					<input type="checkbox" id="transfer-3"><label for="transfer-3">3 пересадки</label>
+				</div>
+			</aside>
+		</div>
+
+		<!-- Блок с выбором сортировки и билетами-->
+		<div class="col-2-3">
+			<!-- Блок с выбором сортировки -->
+			<div class="tabs">
+				<div class="tabs-1-3" id="cheap"><p class="tab-text">Самый дешевый</p></div>
+				<div class="tabs-1-3" id="quick"><p class="tab-text">Самый быстрый</p></div>
+				<div class="tabs-1-3" id="optimal"><p class="tab-text">Оптимальный</p></div>
+			</div>
+			<!-- Блок, уведомляющий пользователя о загрузке билетов-->
+			<div class="loading">
+				<p class="loading-text">Загружаем билеты ...</p>
+			</div>
+
+			<!-- Шаблон билета-->
+			<section class="ticket" style="display: none">
+				<div class="ticket-header">
+					<div class="price"><p class="price-value">13 400 Р</p></div><!-- Цена билета-->
+					<div class="avs-logo"><img src="http://pics.avs.io/99/36/SU.png"></div> <!-- Лого авивакомпании -->
+				</div>
+				<!-- Информация о перелете в одну сторону -->
+				<div class="ticket-content">
+					<div class="route">
+						<p class="text-top places">MOW - HKT</p>  <!-- Пункты начала полета и конца полета -->
+						<p class="text-bottom dates">10:45 - 8:00</p> <!-- Время начала перелета и конца перелета -->
+					</div>
+					<div class="length">
+						<p class="text-top on-the-way">В пути</p> 
+						<p class="text-bottom time">21ч 15м</p> <!-- Время перелета -->
+					</div>
+					<div class="stops">
+						<p class="text-top stops-count">2 пересадки</p> <!-- Количество пересадок -->
+						<p class="text-bottom stops-enum">HKG, JNB</p> <!-- Пункты пересадок -->
+					</div>
+				</div>
+				<!-- Информация о перелете в обратную сторону -->
+				<div class="ticket-content">
+					<div class="route">
+						<p class="text-top places">MOW - HKT</p>
+						<p class="text-bottom dates">11:20 - 00:50</p>
+					</div>
+					<div class="length">
+						<p class="text-top on-the-way">В пути</p>
+						<p class="text-bottom time">13ч 30м</p>
+					</div>
+					<div class="stops">
+						<p class="text-top stops-count">1 пересадка</p>
+						<p class="text-bottom stops-enum">HKG</p>
+					</div>
+				</div>
+			</section>
+			<!-- Кнопка для показа следующих 5 билетов-->
+			<button class="show-tickets"><p class="text-button">Показать еще 5 билетов!</p></button>
+		</div>
+	</div>
+	<script>
+	(function(){
+
+		let tickets = []; //список билетов
+		let isGettingTickets = false; // true - если все билеты загружены с сервера, false - в противном случае
+		//запуск логики сайта
+		window.onload = async function(){
+			tabsSettings(); //настраиваем кнопки с выбором сортировки
+			await getTickets(); //получаем список билетов
+			createHTMLTicket(tickets); //выводим информацию о билетах на экран
+		}
+
+		async function getTickets(){
+			/*
+			*Функция получает с сервера список билетов и сохраняет его в tickets;
+			*currentTickets содержит билеты, полученные с текущего запроса 
+			*/
+			let response = await fetch('https://front-test.beta.aviasales.ru/search'); // запрос для получения serachId
+			if (response.ok){
+				searchId = await response.json(); //получаем searchId
+				let currentTickets = {};
+				while (!isGettingTickets){ //запрашиваем билеты, пока не получим все
+					await fetch('https://front-test.beta.aviasales.ru/tickets?searchId='+searchId['searchId']) //запрашиваем билеты
+						.then(async function(response){
+							currentTickets = await response.json();  //преобразуем в массив
+							tickets = tickets.concat(currentTickets['tickets']); //добавляем текущую партию билетов в общий массив с билетами
+							isGettingTickets = currentTickets['stop']; //проверяем закончились ли билеты
+						})
+						.catch(function(err){});
+				}
+			}	
+		}
+
+		function tabsSettings(){
+			/*
+			*Функция настраивает кнопки сортировки, чтобы они работали как переключатели
+			*/
+			tabsArray = Array.from(document.getElementsByClassName('tabs-1-3'));// получаем спиок кнопок сортировки
+			tabsArray.forEach(function(item, i, tabsArray){
+				item.disabled = true; //создаем свойство disabled: true - если сортировка не выбрана, false - если выбрана текущая сортировка
+				item.onclick = function(event){chooseSorting(event.currentTarget)}; //привязываем функцию сортировки при нажатии на кнопку
+			});
+		}
+
+		function createHTMLTicket(tickets){
+			/*
+			*Функция берет из списка tickets первые пять билетов и отображает о них информацию
+			*ticketsEls список билетов согласно шаблону
+			*/
+			let hiddenTicket = Array.from(document.getElementsByClassName('ticket')).pop(); //получаем шаблон билета
+			let ticketsEls =[]; 
+			for (let i=0;i<5;i++){
+				ticketsEls[i] = hiddenTicket.cloneNode(true); //создаем билеты по шаблону
+			}
+			document.getElementsByClassName('loading')[0].style.display = 'none'; // прячем блок "Загружаем билеты"
+			changeTickets(tickets.slice(0,5), ticketsEls);//заполняем клоны шаблона информацией с первых пяти билетов 
+			ticketsEls.forEach(function(item, i, ticketsEls){
+				item.style.display = 'block'; //делаем билеты видимыми
+				hiddenTicket.before(item); // показываем их, вставляя перед шаблоном
+			});
+		}
+
+		function chooseSorting(el){
+			/*
+			*Функция выбора критерия сортировки билетов
+			*Реализована сортировка по цене и билета и времени перелета
+			*el - кнопка, на которую нажали
+			*sortTickets содержит топ пять билетов из tickets согласно критерию сортировки
+			*/
+			if(!isGettingTickets){ //Запрещаем выбор сортировки до загрузки всех билетов
+				alert("Подождите секундочку! Билеты сейчас загрузятся.");
+				return;
+			}
+			if (el.disabled){ //Проверяем выбрана ли была это сортировка ранее
+				//Указываем, что выбрана текущая сортировка
+				el.disabled = false; 
+				el.style.backgroundColor = "#2196F3";
+				el.children[0].style.color = "white";
+				
+				let els = document.getElementsByClassName('tabs-1-3'); //получаем список кнопок
+				for(let i=0; i<els.length; i++){
+					if (els[i]!=el){//Задаем стили кнопок, сортировка которых не выбрана
+						els[i].style.backgroundColor = "white";
+						els[i].children[0].style.color = "#4a4a4a";
+						els[i].disabled = true;
+					}
+				}
+
+				let sortTickets = sortingTickets(tickets, el.id); //получаем список топ пяти билетов отсортированных по определенному критерию
+				if(!sortTickets.length) return; //не реализована оптимальная сортировка, это способ правильно обработать выбор оптимальной сортировки
+				changeTickets(sortTickets, Array.from(document.getElementsByClassName('ticket')).slice(0,5)); //меняем информацию на отображенных билетах
+			}
+		}
+
+		function sortingTickets(tickets,id){
+			/*
+			*Функция запскает функции сортировки согласно критерия (т.е. в зависимости от нажатой кнопки)
+			*tickets - список билетов для сортировки
+			*id - id кнопки, на которую нажали
+			*/
+			let sortTickets = []; //см. chooseSorting()
+			//выбираем сортировку согласно критерию
+			switch(id){
+				case 'cheap':
+					sortTickets = sortingByPrice(tickets); //сортировка по цене
+					break;
+				case 'quick':
+					sortTickets = sortingByDuration(tickets); //сортировка по длительности перелета
+					break;
+				case 'optimal': break; //оптимальная сортировка
+			}
+			return sortTickets;
+		}
+
+		function sortingByPrice(tickets){
+			/*
+			*Функция реализует сортировку по цене
+			*/
+			let sortTickets = []; //см. chooseSorting()
+			sortTickets = sortTickets.concat(tickets.slice(0, 5)); //берем первые пять билетов
+			sortTickets.sort((a, b) => a.price - b.price); //сортируем их
+			let temp = []; //массив временных данных
+			/*
+			*Сортировка работает следующим образом:
+			*берем очередной билет из списка tickets
+			*сравниваем его с каждым билетом в sortTickets
+			*если билет меньше по цене чем какой-то билет из sortTickets, то он вставляется в sortTickets
+			*остальные билеты в sortTickets смещают свои позиции согласно цене, вытесняя самый дорогой билет
+			*/
+			for (let i=5;i<tickets.length;i++){
+				for (let j=0;j<5;j++){
+					if(temp.length){
+						temp[1] = sortTickets[j];
+						sortTickets[j] = temp[0];
+						temp[0] = temp[1];
+						continue;
+					}
+					if(tickets[i].price<sortTickets[j].price){
+						temp[0] = sortTickets[j];
+						sortTickets[j] = tickets[i];
+					}
+				}
+				temp = [];
+			}
+			return sortTickets;
+		}
+
+		function sortingByDuration(tickets){
+			/*
+			*Функция реализует сортировку по длительности перелета
+			*/
+			sortTickets = []; //см. chooseSorting()
+			sortTickets = sortTickets.concat(tickets.slice(0, 5)); //берем первые пять билетов
+			sortTickets.sort((a, b) => a.segments[0].duration - b.segments[0].duration); //сортируем их
+			let temp = []; //массив временных данных
+			/*
+			*Сортировка работает следующим образом:
+			*берем очередной билет из списка tickets
+			*сравниваем его с каждым билетом в sortTickets
+			*если билет меньше по длительности перелета чем какой-то билет из sortTickets, то он вставляется в sortTickets
+			*остальные билеты в sortTickets смещают свои позиции согласно длительности перелета,
+			*вытесняя билет с самым большим временем перелета
+			*/
+			for (let i=5;i<tickets.length;i++){
+				for (let j=0;j<5;j++){
+					if(temp.length){
+						temp[1] = sortTickets[j];
+						sortTickets[j] = temp[0];
+						temp[0] = temp[1];
+						continue;
+					}
+					if(tickets[i].segments[0].duration<sortTickets[j].segments[0].duration){
+						temp[0] = sortTickets[j];
+						sortTickets[j] = tickets[i];
+					}
+				}
+				temp = [];
+			}
+			return sortTickets;
+		}
+
+		function changeTickets(tickets, ticketsHTML){
+			/*
+			*Функция заполняет билеты из ticketsHTML данными из билетов в tickets
+			*/
+			for(let i=0;i<5;i++){
+				//заголовок билета
+				ticketsHTML[i].children[0].children[0].children[0].innerHTML = `${tickets[i].price} Р`; //цена билета
+				ticketsHTML[i].children[0].children[1].children[0].src = `http://pics.avs.io/99/36/${tickets[i].carrier}.png`; //лого авиакомпании
+				//содержание билета
+				for (let j=1;j<3;j++){
+					ticketsHTML[i].children[j].children[0].children[0].innerHTML = `${tickets[i].segments[j-1].origin} - ${tickets[i].segments[j-1].destination}`; //пункты начала перелета и конца перелета
+					//вычисляем время вылета и время прилета
+					let departureStart = Date.parse(tickets[i].segments[j-1].date);
+					let departureEnd = new Date(departureStart+tickets[i].segments[j-1].duration*60);
+					departureStart = new Date(departureStart);
+					ticketsHTML[i].children[j].children[0].children[1].innerHTML = `${departureStart.getHours()}:${departureStart.getMinutes()} - ${departureEnd.getHours()}:${departureEnd.getMinutes()}`;// время вылета и время прилета
+					//время перелета в виде: часы и минуты
+					let hours = parseInt(tickets[i].segments[j-1].duration / 60);
+					let minutes = tickets[i].segments[j-1].duration % 60;
+					ticketsHTML[i].children[j].children[1].children[1].innerHTML = `${hours}ч ${minutes}м`; //время перелета
+					
+					//формируем текст сообщения о количестве пересадок
+					let countStops = tickets[i].segments[j-1].stops.length;
+					let text = '';
+					switch(countStops){
+						case 0:
+							text = '0 пересадок';
+							break;
+						case 1:
+							text = '1 пересадка';
+							break;
+						case 2:
+						case 3:
+							text = `${countStops} пересадки`;
+							break;
+					}
+					ticketsHTML[i].children[j].children[2].children[0].innerHTML = text; //количество пересадок
+					ticketsHTML[i].children[j].children[2].children[1].innerHTML = tickets[i].segments[j-1].stops.join(', '); //пересадки
+				}
+			}	
+		}
+	})();
+	</script>
+</body>
+</html>

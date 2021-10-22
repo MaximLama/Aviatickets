@@ -1,0 +1,325 @@
+*{
+	margin: 0;
+	padding: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+body{
+	background-color: #f3f7fa;
+}
+
+/*Текст на странице*/
+label, 
+p{
+	font-family: "Open Sans", sans-serif;
+	color: #4a4a4a;
+}
+
+#transfer-count, 
+.tab-text{
+	font-weight: 600;
+	font-size: 12px;
+	line-height: 20px;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+}
+
+/*Блок со всей информацией на странице*/
+.wrap{
+	width: 100%;
+	max-width: 754px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.wrap:after{
+	content: '';
+	display: table;
+	clear: both;
+}
+
+/*Лого сайта*/
+.logo{
+	width: 60px;
+	height: 60px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.logo-container{
+	width: 60px;
+	height: 60px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.logo-wrap{
+	width: 100%;
+	height: 60px;
+	margin-top: 50px;
+	margin-bottom: 50px;
+}
+
+.logo-wrap:after{
+	content: '';
+	display: table;
+	clear: 'both';
+}
+
+/*Колонка с выбром количества пересадок*/
+.col-1-3{
+	width: 33.33%;
+	float: left;
+	padding-right: 20px;
+}
+
+/*Блок с выбором количества пересадок*/
+aside{
+	background-color: white;
+	box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+	border-radius: 5px;
+	padding-bottom: 20px;
+}
+
+.transfers input:checked,
+.transfers input:not(:checked){
+	position: absolute;
+	z-index: -1;
+	opacity: 0;
+}
+
+.transfers input:checked + label,
+.transfers input:not(:checked) + label {
+	display: inline-block;
+	position: relative;
+	padding-left: 28px;
+	line-height: 20px;
+}
+
+.transfers input:checked + label:before,
+.transfers input:not(:checked) + label:before {
+	content: '';
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 19px;
+	height: 19px;
+	border: 1px solid #9ABBCE;
+	border-radius: 2px;
+	cursor: url(../img/cursor.png) 8 4, auto;
+}
+
+.transfers input:checked + label:before{
+	border: 1px solid #2196F3;
+}
+
+.transfers input:checked + label:after{
+	content: '';
+	position: absolute;
+	left:4px;
+	top: 5px;
+	width: 10px;
+	height: 5px;
+	border-radius: 1px;
+	border-left: 3px solid #2196F3;
+	border-bottom: 3px solid #2196F3;
+	-webkit-transform: rotate(-45deg);
+	-moz-transform: rotate(-45deg);
+	-o-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+}
+
+.transfers label{
+	font-size: 13px;
+	line-height: 20px;
+	cursor: url(../img/cursor.png) 8 4, auto;
+}
+
+#transfer-count{
+	padding: 20px;
+}
+
+.transfers{
+	width: 100%;
+	padding: 10px 20px;
+}
+
+.transfers:hover{
+	background-color: #F1FCFF;
+	cursor: url(../img/cursor.png) 8 4, auto;
+}
+
+.transfers:last-child{
+	margin-bottom: 0px;
+}
+
+
+/*Колонка с билетами*/
+.col-2-3{
+	width: 66.64%;
+	float: left;
+}
+
+/*Блок с выбором сортировки*/
+.tabs{
+	width:100%;
+	height: 50px;
+	border: 1px solid #DFE5EC;
+	border-radius: 5px;
+	margin-bottom: 20px;
+}
+
+.tabs-1-3{
+	float:left;
+	width: 33.33%;
+	background-color: white;
+	height: 100%;
+	padding: 15px;
+	border-right: 1px solid #DFE5EC;
+	cursor: default;
+}
+
+.tabs-1-3:last-child{
+	border-right-width: 0px;
+}
+
+.tab-text{
+	text-align:center;
+}
+
+/*Блок, уведомляющий пользователя о загрузке билетов*/
+.loading{
+	width: 100%;
+	border-width: 0px;
+	border-radius: 5px; 
+	background-color: white;
+	padding: 15px 20px;
+	margin-bottom: 20px;
+}
+
+.loading-text{
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 21px;
+	text-align: center;
+}
+
+/*Шаблон билета*/
+.ticket{
+	width: 100%;
+	padding: 20px;
+	background-color: white;
+	border-radius: 5px;
+	box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+	margin-bottom: 20px; 
+}
+
+.ticket-content, 
+.ticket-header{
+	width: 100%;
+	margin-bottom: 20px;
+}
+
+/*Шапка билета*/
+.ticket-header{
+	height: 36px;
+}
+
+.ticket-header:after{
+	content: '';
+	display: table;
+	clear: both;
+}
+
+/*Цена билета*/
+.price{
+	float: left;
+	width: 50%;
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
+.price-value{
+	font-weight: 600;
+	font-size: 24px;
+	line-height: 24px;
+	color: #2196F3;
+}
+
+/*Лого авивакомпании*/
+.avs-logo{
+	float:left;
+	width: 50%;
+	text-align: right;
+}
+
+.avs-logo img{
+	width: 110px;
+}
+
+/*Содержание билета*/
+.ticket-content:after{
+	content: '';
+	display: table;
+	clear: both;
+}
+
+.ticket-content:last-child{
+	margin-bottom: 0px;
+}
+
+.text-bottom{
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 21px;
+
+}
+
+.text-top{
+	color: #A0B0B9;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 18px;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+}
+
+/*Время и пункты перелета*/
+.route{
+	float: left;
+	width: 33.33%;
+}
+
+/*Время перелета*/
+.length{
+	float:left;
+	width: 33.33%
+}
+
+/*Пересадки*/
+.stops{
+	float: left;
+	width: 33.34%;
+}
+
+/*Кнопка показать еще билеты*/
+.text-button{
+	color: white;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 20px;
+	letter-spacing: 0.5px;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.show-tickets{
+	width: 100%;
+	border-width: 0px;
+	border-radius: 5px; 
+	background-color: #2196F3;
+	padding: 15px 20px;
+}
